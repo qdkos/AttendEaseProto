@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AttendEase – Admin Panel</title>
+    <script src="cloud-sync.js"></script>
+    <script src="db.js"></script>
+    <link rel="stylesheet" href="adminPanel.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=archive" />
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await window.initCloudDb();
+            // Existing initialization logic...
+        });
+    </script>
+</head>
+
+<body>
+    <!-- Liquid glass background orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+
+    <!-- ══════════════ SIDEBAR ══════════════ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+            <div class="brand">AttendEase</div>
+            <button class="sidebar-close" onclick="toggleSidebar()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+
+
+        <div class="admin-info" id="adminInfoSection" onclick="openAdminProfileModal()" title="Edit Profile">
+            <div class="a-avatar-wrap" id="aAvatarWrap">
+                <div class="a-avatar" id="aAvatar">AD</div>
+                <img id="aAvatarImg" class="a-avatar-photo" hidden>
+                <div class="a-avatar-overlay">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                    </svg>
+                </div>
+            </div>
+            <div>
+                <div class="a-name" id="aName">Administrator</div>
+                <div class="a-role">Admin</div>
+            </div>
+        </div>
+        <input type="file" id="adminProfilePicInput" accept="image/*" hidden
+            onchange="handleAdminProfilePicUpload(event)">
+
+        <nav class="sidebar-nav">
+            <button class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                </svg>
+                Dashboard
+            </button>
+            <button class="nav-item" onclick="navigate('users')" id="nav-users">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Manage Users
+            </button>
+            <button class="nav-item" onclick="navigate('create')" id="nav-create">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="8.5" cy="7" r="4" />
+                    <line x1="20" y1="8" x2="20" y2="14" />
+                    <line x1="23" y1="11" x2="17" y2="11" />
+                </svg>
+                Create Account
+            </button>
+        </nav>
+
+        <button class="sign-out-btn" onclick="signOut()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Sign Out
+        </button>
+    </aside>
+
+    <!-- ══════════════ MAIN ══════════════ -->
+    <div class="main-wrap" id="mainWrap">
+
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger-mobile" onclick="toggleSidebar()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <button class="hamburger-desktop" onclick="toggleSidebarDesktop()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <line x1="9" y1="3" x2="9" y2="21" />
+                    </svg>
+                </button>
+                <div class="page-title" id="pageTitle">Dashboard</div>
+            </div>
+            <div class="topbar-right">
+                <div class="search-box" id="searchBox" style="display:none">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <input type="text" placeholder="Search users…" id="searchInput" oninput="filterUsers()">
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+
+            <!-- ══ DASHBOARD PAGE ══ -->
+            <section class="page active" id="page-dashboard">
+                <div class="stat-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalUsers">0</div>
+                            <div class="stat-label">Total Accounts</div>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalStudents">0</div>
+                            <div class="stat-label">Students</div>
+                        </div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M22 8l-6 2-4-1" />
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalTeachers">0</div>
+                            <div class="stat-label">Teachers</div>
+                        </div>
+                    </div>
+                    <div class="stat-card amber">
+                        <div class="stat-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="recentCount">0</div>
+                            <div class="stat-label">Added This Month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-grid">
+                    <!-- Recent accounts -->
+                    <div class="card">
+                        <div class="card-head">
+                            <h3 class="card-title">Recent Accounts</h3>
+                            <button class="btn-link" onclick="navigate('users')">View all →</button>
+                        </div>
+                        <div class="recent-list" id="recentList"></div>
+                    </div>
+
+                    <!-- Quick create -->
+                    <div class="card quick-create-card">
+                        <h3 class="card-title">Quick Actions</h3>
+                        <div class="quick-actions">
+                            <button class="quick-btn student-btn" onclick="navigate('create'); setRole('student')">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                </svg>
+                                <span>New Student</span>
+                                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6" />
+                                </svg>
+                            </button>
+                            <button class="quick-btn teacher-btn" onclick="navigate('create'); setRole('teacher')">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M22 8l-6 2-4-1" />
+                                </svg>
+                                <span>New Teacher</span>
+                                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6" />
+                                </svg>
+                            </button>
+                            <button class="quick-btn manage-btn" onclick="navigate('users')">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                                <span>Manage Users</span>
+                                <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══ MANAGE USERS PAGE ══ -->
+            <section class="page" id="page-users">
+                <div class="filter-bar">
+                    <div class="role-tabs">
+                        <button class="role-tab active" id="tab-all" onclick="filterByRole('all')">All</button>
+                        <button class="role-tab" id="tab-student" onclick="filterByRole('student')">Students</button>
+                        <button class="role-tab" id="tab-teacher" onclick="filterByRole('teacher')">Teachers</button>
+                        <button class="role-tab" id="tab-admin" onclick="filterByRole('admin')">Admins</button>
+                        <button class="role-tab" id="tab-archived" onclick="filterByRole('archived')">Archived</button>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Full Name</th>
+                                <th>ID / Username</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ══ CREATE ACCOUNT PAGE ══ -->
+            <section class="page" id="page-create">
+                <div class="create-layout">
+                    <div class="card create-card">
+                        <h3 class="card-title">Create New Account</h3>
+
+                        <!-- Role toggle -->
+                        <div class="form-group">
+                            <label>Account Role</label>
+                            <div class="role-toggle">
+                                <button class="role-opt active" id="role-student" onclick="setRole('student')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        <circle cx="12" cy="7" r="4" />
+                                    </svg>
+                                    Student
+                                </button>
+                                <button class="role-opt" id="role-teacher" onclick="setRole('teacher')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M22 8l-6 2-4-1" />
+                                    </svg>
+                                    Teacher
+                                </button>
+                                <button class="role-opt" id="role-admin" onclick="setRole('admin')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                        <circle cx="8.5" cy="7" r="4" />
+                                        <line x1="20" y1="8" x2="20" y2="14" />
+                                        <line x1="23" y1="11" x2="17" y2="11" />
+                                    </svg>
+                                    Admin
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" id="cf-firstname" placeholder="e.g. Maria">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" id="cf-lastname" placeholder="e.g. Santos">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label id="idLabel">Student ID</label>
+                            <input type="text" id="cf-uid" placeholder="Auto-generated" readonly disabled>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="cf-email" placeholder="e.g. maria@school.edu">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" id="cf-username" placeholder="Login username">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" id="cf-password" placeholder="Minimum 8 characters">
+                                <button type="button" class="pw-toggle" onclick="togglePw('cf-password', this)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" id="cf-confirm" placeholder="Re-enter password">
+                                <button type="button" class="pw-toggle" onclick="togglePw('cf-confirm', this)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn-ghost" onclick="resetCreateForm()">Reset</button>
+                            <button class="btn-primary" onclick="createAccount()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="8.5" cy="7" r="4" />
+                                    <line x1="20" y1="8" x2="20" y2="14" />
+                                    <line x1="23" y1="11" x2="17" y2="11" />
+                                </svg>
+                                Create Account
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preview card -->
+                    <div class="card preview-card">
+                        <h3 class="card-title">Account Preview</h3>
+                        <div class="preview-avatar" id="previewAvatar">?</div>
+                        <div class="preview-name" id="previewName">Full Name</div>
+                        <div class="preview-role-badge" id="previewRole">Student</div>
+                        <div class="preview-details">
+                            <div class="preview-row">
+                                <span class="preview-key">ID / Employee #</span>
+                                <span class="preview-val" id="previewId">—</span>
+                            </div>
+                            <div class="preview-row">
+                                <span class="preview-key">Email</span>
+                                <span class="preview-val" id="previewEmail">—</span>
+                            </div>
+                            <div class="preview-row">
+                                <span class="preview-key">Username</span>
+                                <span class="preview-val" id="previewUsername">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ══ EDIT CREDENTIALS MODAL ══ -->
+    <div class="modal-overlay" id="editModal" hidden onclick="closeEditModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h3>Edit Credentials</h3>
+                    <p class="modal-subtitle" id="editSubtitle"></p>
+                </div>
+                <button class="modal-close" onclick="closeEditModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="modal-tabs">
+                <button class="modal-tab active" id="mtab-info" onclick="switchModalTab('info')">Basic Info</button>
+                <button class="modal-tab" id="mtab-creds" onclick="switchModalTab('creds')">Credentials</button>
+            </div>
+
+            <!-- Basic Info tab -->
+            <div id="mtab-info-panel">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="edit-firstname">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="edit-lastname">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="editIdLabel">Student ID</label>
+                    <input type="text" id="edit-uid" readonly disabled>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="edit-email">
+                </div>
+            </div>
+
+            <!-- Credentials tab -->
+            <div id="mtab-creds-panel" hidden>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="edit-username">
+                </div>
+                <div class="form-group">
+                    <label>New Password <span class="optional">(leave blank to keep current)</span></label>
+                    <div class="pw-wrap">
+                        <input type="password" id="edit-password" placeholder="Enter new password">
+                        <button type="button" class="pw-toggle" onclick="togglePw('edit-password', this)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" id="edit-confirm" placeholder="Re-enter new password">
+                        <button type="button" class="pw-toggle" onclick="togglePw('edit-confirm', this)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-ghost" onclick="closeEditModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ DELETE CONFIRM MODAL ══ -->
+    <div class="modal-overlay" id="deleteModal" hidden onclick="closeDeleteModal(event)">
+        <div class="modal-box modal-sm" onclick="event.stopPropagation()">
+            <div class="delete-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                </svg>
+            </div>
+            <h3 class="delete-title" id="deleteModalTitle">Delete Account?</h3>
+            <p class="delete-msg" id="deleteMsg"></p>
+            <div class="modal-actions">
+                <button class="btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ ADMIN PROFILE MODAL ══ -->
+    <div class="modal-overlay" id="adminProfileModal" hidden onclick="closeAdminProfileModal(event)">
+        <div class="modal-box admin-profile-modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>My Profile</h3>
+                <button class="modal-close" onclick="closeAdminProfileModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <div class="admin-profile-content">
+                <!-- Clickable avatar -->
+                <div class="a-profile-avatar-ring" id="aProfileAvatarRing"
+                    onclick="document.getElementById('adminProfilePicInput').click()" title="Change profile picture">
+                    <div class="a-profile-avatar-initials" id="aProfileAvatarInitials">AD</div>
+                    <img id="aProfileAvatarImg" class="a-profile-avatar-photo" hidden>
+                    <div class="a-profile-avatar-overlay">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                            <circle cx="12" cy="13" r="4" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="a-profile-name" id="aProfileName">Administrator</h2>
+                <p class="a-profile-role-badge">Admin</p>
+                <div class="profile-actions">
+                    <button class="edit-profile-btn" onclick="document.getElementById('adminProfilePicInput').click()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        Edit Profile
+                    </button>
+                    <button class="remove-photo-btn" id="aRemovePhotoBtn" onclick="removeAdminProfilePic()" hidden>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                        </svg>
+                        Remove Photo
+                    </button>
+                </div>
+            </div>
+            <div class="a-profile-info-list">
+                <div class="a-profile-info-item">
+                    <span class="a-profile-info-label">Username</span>
+                    <span class="a-profile-info-value" id="aProfileUsername">—</span>
+                </div>
+                <div class="a-profile-info-item">
+                    <span class="a-profile-info-label">Email</span>
+                    <span class="a-profile-info-value" id="aProfileEmail">—</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-ghost" onclick="closeAdminProfileModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ TOAST ══ -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        /* ═══════════════════════════════
+           INIT — load from DB
+        ═══════════════════════════════ */
+        let users = [];
+        let nextId = 1;      // managed by DB
+        let activeRole = 'student';
+        let editingUserId = null;
+        let deletingUserId = null;
+        let currentRoleFilter = 'all';
+        let adminSession = null;   // set on DOMContentLoaded
+
+        // Auth guard + load data
+        window.addEventListener('DOMContentLoaded', async () => {
+            await window.initCloudDb();
+            adminSession = DB.requireAuth(['admin']);
+            if (!adminSession) return;
+            // Show admin name & initials
+            const fullName = `${adminSession.firstname} ${adminSession.lastname || ''}`.trim() || 'Administrator';
+            const initials = ((adminSession.firstname || 'A')[0] + (adminSession.lastname || 'D')[0]).toUpperCase();
+            document.getElementById('aName').textContent = fullName;
+            document.getElementById('aAvatar').textContent = initials;
+            loadAdminProfilePic();
+
+            // Allow all except current admin
+            users = DB.getAll().filter(u => u.id !== adminSession.id);
+            setRole('student'); // Init auto-generated id
+            refreshDashboard();
+        });
+
+        /* ═══════════════════════════════
+           NAVIGATION
+        ═══════════════════════════════ */
+        const PAGE_TITLES = { dashboard: 'Dashboard', users: 'Manage Users', create: 'Create Account' };
+
+        function navigate(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            document.getElementById('nav-' + page).classList.add('active');
+            document.getElementById('pageTitle').textContent = PAGE_TITLES[page];
+            document.getElementById('searchBox').style.display = page === 'users' ? '' : 'none';
+            if (page === 'dashboard') refreshDashboard();
+            if (page === 'users') renderUserTable(users);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('mainWrap').classList.toggle('shifted');
+        }
+
+        function toggleSidebarDesktop() {
+            document.body.classList.toggle('sidebar-collapsed');
+        }
+
+        function signOut() {
+            DB.clearSession();
+            window.location.href = 'index.html';
+        }
+
+        /* ═══════════════════════════════
+           DASHBOARD
+        ═══════════════════════════════ */
+        function refreshDashboard() {
+            users = DB.getAll().filter(u => u.id !== adminSession.id);
+            const activeUsers = users.filter(u => !u.isArchived);
+            const students = activeUsers.filter(u => u.role === 'student');
+            const teachers = activeUsers.filter(u => u.role === 'teacher');
+            const thisMonth = new Date().toISOString().slice(0, 7);
+            const recent = activeUsers.filter(u => u.created && u.created.startsWith(thisMonth));
+
+            animateCount('totalUsers', users.length);
+            animateCount('totalStudents', students.length);
+            animateCount('totalTeachers', teachers.length);
+            animateCount('recentCount', recent.length);
+
+            // Recent list (last 5 active)
+            const list = document.getElementById('recentList');
+            const last5 = [...activeUsers].reverse().slice(0, 5);
+            list.innerHTML = last5.map(u => `
+            <div class="recent-item">
+                <div class="recent-avatar ${u.role}">${initials(u)}</div>
+                <div class="recent-info">
+                    <div class="recent-name">${u.firstname} ${u.lastname}</div>
+                    <div class="recent-meta">${u.uid} &bull; ${u.created}</div>
+                </div>
+                <span class="role-badge ${u.role}">${capitalize(u.role)}</span>
+            </div>
+        `).join('');
+        }
+
+        function animateCount(id, target) {
+            const el = document.getElementById(id);
+            let cur = 0;
+            const step = Math.ceil(target / 20);
+            const t = setInterval(() => {
+                cur = Math.min(cur + step, target);
+                el.textContent = cur;
+                if (cur >= target) clearInterval(t);
+            }, 40);
+        }
+
+        /* ═══════════════════════════════
+           USER TABLE
+        ═══════════════════════════════ */
+        function renderUserTable(list) {
+            const tbody = document.getElementById('userTableBody');
+            let filtered = currentRoleFilter === 'archived'
+                ? list.filter(u => u.isArchived)
+                : (currentRoleFilter === 'all'
+                    ? list.filter(u => !u.isArchived)
+                    : list.filter(u => u.role === currentRoleFilter && !u.isArchived));
+
+            tbody.innerHTML = '';
+            if (!filtered.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-row">No accounts found.</td></tr>`;
+                return;
+            }
+            filtered.forEach((u, i) => {
+                const isArchived = u.isArchived;
+                let actionsHTML = '';
+                if (isArchived) {
+                    actionsHTML = `
+                        <button class="action-btn" onclick="restoreAccount(${u.id})" title="Restore">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                        </button>
+                        <button class="action-btn delete" onclick="openDeleteModal(${u.id}, 'delete')" title="Delete Permanently">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                        </button>
+                    `;
+                } else {
+                    actionsHTML = `
+                        <button class="action-btn edit" onclick="openEditModal(${u.id})" title="Edit">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="action-btn archive" onclick="openDeleteModal(${u.id}, 'archive')" title="Archive">
+                            <span class="material-symbols-outlined" style="font-size:14px;line-height:1;">archive</span>
+                        </button>
+                    `;
+                }
+
+                tbody.innerHTML += `
+            <tr>
+                <td class="row-num">${i + 1}</td>
+                <td>
+                    <div class="user-cell">
+                        <div class="tbl-avatar ${u.role}">${initials(u)}</div>
+                        <div>
+                            <div class="user-name">${u.firstname} ${u.lastname}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="mono">${u.uid}<br><span class="sub-text">@${u.username}</span></td>
+                <td><span class="role-badge ${u.role}">${capitalize(u.role)}</span></td>
+                <td class="sub-text">${u.email}</td>
+                <td class="sub-text">${u.created}</td>
+                <td>
+                    <div class="action-btns">
+                        ${actionsHTML}
+                    </div>
+                </td>
+            </tr>`;
+            });
+        }
+
+        function filterByRole(role) {
+            currentRoleFilter = role;
+            ['all', 'student', 'teacher', 'admin', 'archived'].forEach(r => {
+                const el = document.getElementById('tab-' + r);
+                if (el) el.classList.toggle('active', r === role);
+            });
+            renderUserTable(filteredSearch());
+        }
+
+        function filterUsers() {
+            renderUserTable(filteredSearch());
+        }
+
+        function filteredSearch() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            return q ? users.filter(u =>
+                `${u.firstname} ${u.lastname}`.toLowerCase().includes(q) ||
+                u.uid.toLowerCase().includes(q) ||
+                u.username.toLowerCase().includes(q) ||
+                u.email.toLowerCase().includes(q)
+            ) : users;
+        }
+
+        /* ═══════════════════════════════
+           EDIT MODAL
+        ═══════════════════════════════ */
+        function openEditModal(id) {
+            const u = users.find(u => u.id === id);
+            if (!u) return;
+            editingUserId = id;
+            document.getElementById('editSubtitle').textContent = `${capitalize(u.role)} — ${u.firstname} ${u.lastname}`;
+            document.getElementById('editIdLabel').textContent = u.role === 'student' ? 'Student ID' : (u.role === 'teacher' ? 'Employee #' : 'Admin ID');
+            document.getElementById('edit-firstname').value = u.firstname;
+            document.getElementById('edit-lastname').value = u.lastname;
+            document.getElementById('edit-uid').value = u.uid;
+            document.getElementById('edit-email').value = u.email;
+            document.getElementById('edit-username').value = u.username;
+            document.getElementById('edit-password').value = '';
+            document.getElementById('edit-confirm').value = '';
+            switchModalTab('info');
+            document.getElementById('editModal').hidden = false;
+        }
+
+        function closeEditModal(e) {
+            if (!e || e.target === document.getElementById('editModal'))
+                document.getElementById('editModal').hidden = true;
+        }
+
+        function switchModalTab(tab) {
+            ['info', 'creds'].forEach(t => {
+                document.getElementById('mtab-' + t).classList.toggle('active', t === tab);
+                document.getElementById('mtab-' + t + '-panel').hidden = t !== tab;
+            });
+        }
+
+        function saveEdit() {
+            const u = users.find(u => u.id === editingUserId);
+            if (!u) return;
+
+            const pw = document.getElementById('edit-password').value;
+            const pw2 = document.getElementById('edit-confirm').value;
+            if (pw && pw !== pw2) { showToast('Passwords do not match ✗', 'error'); return; }
+            if (pw && pw.length < 8) { showToast('Password must be at least 8 characters ✗', 'error'); return; }
+
+            const newUsername = document.getElementById('edit-username').value.trim();
+            if (DB.usernameExists(newUsername, editingUserId)) {
+                showToast('Username already taken ✗', 'error'); return;
+            }
+
+            const changes = {
+                firstname: document.getElementById('edit-firstname').value.trim() || u.firstname,
+                lastname: document.getElementById('edit-lastname').value.trim() || u.lastname,
+                uid: document.getElementById('edit-uid').value.trim() || u.uid,
+                email: document.getElementById('edit-email').value.trim() || u.email,
+                username: newUsername || u.username,
+            };
+            if (pw) changes.password = pw;
+
+            DB.update(editingUserId, changes);
+            users = DB.getAll().filter(u => u.id !== adminSession.id);
+
+            document.getElementById('editModal').hidden = true;
+            renderUserTable(filteredSearch());
+            showToast('Credentials updated ✓');
+        }
+
+        /* ═══════════════════════════════
+           DELETE MODAL
+        ═══════════════════════════════ */
+        let modalActionType = 'archive';
+
+        function openDeleteModal(id, actionType = 'archive') {
+            const u = users.find(u => u.id === id);
+            if (!u) return;
+            deletingUserId = id;
+            modalActionType = actionType;
+            if (actionType === 'delete') {
+                document.getElementById('deleteModalTitle').textContent = 'Delete Permanently?';
+                document.getElementById('confirmDeleteBtn').textContent = 'Delete';
+                document.getElementById('deleteMsg').textContent =
+                    `This will permanently delete the account of "${u.firstname} ${u.lastname}" (${u.uid}). This action cannot be undone.`;
+            } else {
+                document.getElementById('deleteModalTitle').textContent = 'Archive Account?';
+                document.getElementById('confirmDeleteBtn').textContent = 'Archive';
+                document.getElementById('deleteMsg').textContent =
+                    `This will archive the account of "${u.firstname} ${u.lastname}". You can restore it later from the Archived tab.`;
+            }
+            document.getElementById('deleteModal').hidden = false;
+        }
+
+        function closeDeleteModal(e) {
+            if (!e || e.target === document.getElementById('deleteModal'))
+                document.getElementById('deleteModal').hidden = true;
+        }
+
+        function confirmDelete() {
+            if (modalActionType === 'delete') {
+                DB.delete(deletingUserId);
+                showToast('Account permanently deleted ✓');
+            } else {
+                DB.archive(deletingUserId);
+                showToast('Account archived ✓');
+            }
+            users = DB.getAll().filter(u => u.id !== adminSession.id);
+            document.getElementById('deleteModal').hidden = true;
+            renderUserTable(filteredSearch());
+            refreshDashboard();
+        }
+
+        function restoreAccount(id) {
+            DB.restore(id);
+            users = DB.getAll().filter(u => u.id !== adminSession.id);
+            renderUserTable(filteredSearch());
+            refreshDashboard();
+            showToast('Account restored ✓');
+        }
+
+        /* ═══════════════════════════════
+           CREATE ACCOUNT
+        ═══════════════════════════════ */
+        function setRole(role) {
+            activeRole = role;
+            document.getElementById('role-student').classList.toggle('active', role === 'student');
+            document.getElementById('role-teacher').classList.toggle('active', role === 'teacher');
+            document.getElementById('role-admin').classList.toggle('active', role === 'admin');
+            document.getElementById('idLabel').textContent = role === 'student' ? 'Student ID' : (role === 'teacher' ? 'Employee #' : 'Admin ID');
+            document.getElementById('previewRole').textContent = capitalize(role);
+            document.getElementById('previewRole').className = 'preview-role-badge ' + role;
+            document.getElementById('cf-uid').value = DB.generateUid(role);
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const fn = document.getElementById('cf-firstname').value.trim();
+            const ln = document.getElementById('cf-lastname').value.trim();
+            const fullName = [fn, ln].filter(Boolean).join(' ') || 'Full Name';
+            const av = [fn[0], ln[0]].filter(Boolean).join('').toUpperCase() || '?';
+            document.getElementById('previewName').textContent = fullName;
+            document.getElementById('previewAvatar').textContent = av;
+            document.getElementById('previewAvatar').className = 'preview-avatar ' + activeRole;
+            document.getElementById('previewId').textContent = document.getElementById('cf-uid').value || '—';
+            document.getElementById('previewEmail').textContent = document.getElementById('cf-email').value || '—';
+            document.getElementById('previewUsername').textContent = document.getElementById('cf-username').value || '—';
+        }
+
+        // Bind live preview
+        ['cf-firstname', 'cf-lastname', 'cf-uid', 'cf-email', 'cf-username'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updatePreview);
+        });
+
+        function createAccount() {
+            const fn = document.getElementById('cf-firstname').value.trim();
+            const ln = document.getElementById('cf-lastname').value.trim();
+            const uid = document.getElementById('cf-uid').value.trim();
+            const em = document.getElementById('cf-email').value.trim();
+            const un = document.getElementById('cf-username').value.trim();
+            const pw = document.getElementById('cf-password').value;
+            const pw2 = document.getElementById('cf-confirm').value;
+
+            if (!fn || !ln || !uid || !em || !un || !pw) { showToast('Please fill in all fields ✗', 'error'); return; }
+            if (pw !== pw2) { showToast('Passwords do not match ✗', 'error'); return; }
+            if (pw.length < 8) { showToast('Password must be at least 8 characters ✗', 'error'); return; }
+            if (DB.usernameExists(un)) { showToast('Username already taken ✗', 'error'); return; }
+
+            DB.create({ role: activeRole, firstname: fn, lastname: ln, uid, email: em, username: un, password: pw });
+            users = DB.getAll().filter(u => u.id !== adminSession.id);
+            resetCreateForm();
+            showToast(`${capitalize(activeRole)} account created ✓`);
+            refreshDashboard();
+        }
+
+        function resetCreateForm() {
+            ['cf-firstname', 'cf-lastname', 'cf-email', 'cf-username', 'cf-password', 'cf-confirm'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('cf-uid').value = DB.generateUid(activeRole);
+            updatePreview();
+        }
+
+        /* ═══════════════════════════════
+           UTILS
+        ═══════════════════════════════ */
+        function initials(u) { return (u.firstname[0] + u.lastname[0]).toUpperCase(); }
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+        function togglePw(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            const isHidden = inp.type === 'password';
+            inp.type = isHidden ? 'text' : 'password';
+            btn.innerHTML = isHidden
+                ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+                : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show ' + (type === 'error' ? 'toast-error' : '');
+            setTimeout(() => t.className = 'toast', 3000);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ADMIN PROFILE PICTURE
+        ═══════════════════════════════════════════════════════════════ */
+        function _adminPicKey() {
+            return adminSession ? `attendease_admin_pic_${adminSession.id}` : null;
+        }
+
+        function loadAdminProfilePic() {
+            const key = _adminPicKey();
+            if (!key) return;
+            const pic = localStorage.getItem(key);
+            const avatarImg = document.getElementById('aAvatarImg');
+            const avatarInitials = document.getElementById('aAvatar');
+            if (pic) {
+                avatarImg.src = pic;
+                avatarImg.hidden = false;
+                avatarInitials.style.display = 'none';
+            } else {
+                avatarImg.hidden = true;
+                avatarImg.src = '';
+                avatarInitials.style.display = '';
+            }
+        }
+
+        function openAdminProfileModal() {
+            if (!adminSession) return;
+            const fullName = `${adminSession.firstname} ${adminSession.lastname || ''}`.trim() || 'Administrator';
+            const initials = ((adminSession.firstname || 'A')[0] + (adminSession.lastname || 'D')[0]).toUpperCase();
+            const key = _adminPicKey();
+            const pic = key ? localStorage.getItem(key) : null;
+
+            document.getElementById('aProfileName').textContent = fullName;
+            document.getElementById('aProfileUsername').textContent = adminSession.username || '—';
+            document.getElementById('aProfileEmail').textContent = adminSession.email || '—';
+
+            const profileInitials = document.getElementById('aProfileAvatarInitials');
+            const profileImg = document.getElementById('aProfileAvatarImg');
+            const removeBtn = document.getElementById('aRemovePhotoBtn');
+
+            profileInitials.textContent = initials;
+            if (pic) {
+                profileImg.src = pic;
+                profileImg.hidden = false;
+                profileInitials.style.display = 'none';
+                removeBtn.hidden = false;
+            } else {
+                profileImg.hidden = true;
+                profileImg.src = '';
+                profileInitials.style.display = '';
+                removeBtn.hidden = true;
+            }
+
+            document.getElementById('adminProfileModal').hidden = false;
+        }
+
+        function closeAdminProfileModal(e) {
+            if (!e || e.target === document.getElementById('adminProfileModal')) {
+                document.getElementById('adminProfileModal').hidden = true;
+            }
+        }
+
+        function handleAdminProfilePicUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Image too large — please use one under 2 MB.', 'error');
+                event.target.value = '';
+                return;
+            }
+            const key = _adminPicKey();
+            if (!key) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    localStorage.setItem(key, ev.target.result);
+
+                    // Update sidebar avatar
+                    const avatarImg = document.getElementById('aAvatarImg');
+                    avatarImg.src = ev.target.result;
+                    avatarImg.hidden = false;
+                    document.getElementById('aAvatar').style.display = 'none';
+
+                    // Update modal avatar
+                    const profileImg = document.getElementById('aProfileAvatarImg');
+                    profileImg.src = ev.target.result;
+                    profileImg.hidden = false;
+                    document.getElementById('aProfileAvatarInitials').style.display = 'none';
+                    document.getElementById('aRemovePhotoBtn').hidden = false;
+
+                    showToast('Profile picture saved ✓');
+                } catch (e) {
+                    showToast('Could not save photo — storage may be full.', 'error');
+                }
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function removeAdminProfilePic() {
+            const key = _adminPicKey();
+            if (!key) return;
+            localStorage.removeItem(key);
+
+            const initials = ((adminSession.firstname || 'A')[0] + (adminSession.lastname || 'D')[0]).toUpperCase();
+
+            // Revert sidebar
+            const avatarImg = document.getElementById('aAvatarImg');
+            avatarImg.hidden = true;
+            avatarImg.src = '';
+            const avatarInitials = document.getElementById('aAvatar');
+            avatarInitials.textContent = initials;
+            avatarInitials.style.display = '';
+
+            // Revert modal
+            const profileImg = document.getElementById('aProfileAvatarImg');
+            profileImg.hidden = true;
+            profileImg.src = '';
+            document.getElementById('aProfileAvatarInitials').textContent = initials;
+            document.getElementById('aProfileAvatarInitials').style.display = '';
+            document.getElementById('aRemovePhotoBtn').hidden = true;
+
+            showToast('Profile picture removed');
+        }
+    </script>
+</body>
+
+</html>
